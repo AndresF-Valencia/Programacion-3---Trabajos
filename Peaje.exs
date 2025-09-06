@@ -1,27 +1,41 @@
 defmodule Peaje do
   def main do
-    placa = Util.ingresar("Ingrese la placa del vehículo: ", :texto)
-    tipo = Util.ingresar("Ingrese el tipo de vehículo: ", :texto)
-    peso = Util.ingresar("Ingrese el peso del vehículo: ", :real)
+    placa =
+      "Ingrese la placa del vehículo: "
+      |> Util.ingresar(:texto)
 
-    {tipo, peso} = calcular_tarifa_final(tipo,peso)
+    tipo =
+      "Ingrese el tipo de vehículo: "
+      |> Util.ingresar(:texto)
+      |> String.downcase()
 
-    generar_mensaje(placa, tipo, tarifa_final)
+    peso =
+      "Ingrese el peso del vehículo: "
+      |> Util.ingresar(:real)
+
+    {tipo_calculado, tarifa} = calcular_tarifa_final(tipo, peso)
+
+    generar_mensaje(placa, tipo_calculado, tarifa)
     |> Util.mostrar_mensaje()
+
+    {placa, tipo_calculado, tarifa}
   end
 
-  defp calcular_tarifa_final(tipo, peso)do
+  defp calcular_tarifa_final(tipo, peso) do
     cond do
-    tipo == "carro" -> {tipo, 10000}
-    tipo == "moto" -> {tipo, 5000}
-    tipo == "camion" -> {tipo, 20000 + 2000 * peso}
-    true -> {tipo, 0}
-   end
+      tipo == "carro" -> {tipo, 10000.0}
+      tipo == "moto" -> {tipo, 5000.0}
+      tipo == "camion" -> {tipo, 20000.0 + 2000.0 * peso}
+      true -> {tipo, 0.0}
+    end
   end
 
-  defp generar_mensaje(placa, tipo, tarifa_final)do
-  "Vehiculo #{placa} (#{tipo}) debe pagar #{tarifa_final}"
- end
+  defp generar_mensaje(placa, tipo, tarifa) do
+    tarifa_formateada = :erlang.float_to_binary(tarifa, decimals: 0)
+                        |> String.replace(~r/\B(?=(\d{3})+(?!\d))/, ".")
+
+    "Vehículo #{placa} (#{String.capitalize(tipo)}) debe pagar $#{tarifa_formateada}"
+  end
 end
 
 Peaje.main()
